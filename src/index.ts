@@ -3,15 +3,17 @@ import { createClient } from "@vercel/postgres";
 import express, { Request, Response } from "express";
 import { config } from "dotenv";
 import { Server } from "socket.io";
-import { createServer, METHODS } from "http";
+import { createServer } from "http";
 import cors from "cors";
+import path from "path";
 //#endregion
 
 //#region ::: CONFIGURATION :::
 config();
-
+const port = process.env.PORT || 3000;
 const app = express();
-const port = 3000;
+
+app.use(express.static(path.join(__dirname, "../public")));
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -54,7 +56,7 @@ io.on("connection", (socket) => {
 });
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 app.get("/api/messages", (req: Request, res: Response) => {
@@ -77,10 +79,6 @@ app.post("/api/messages", (req: Request, res: Response) => {
   }
 });
 
-server.listen(3000, () => {
+server.listen(port, () => {
   console.log(`Server is running http://localhost:${port}`);
-});
-
-app.listen(8080, () => {
-  console.log(`Server is running http://localhost:${8080}`);
 });
